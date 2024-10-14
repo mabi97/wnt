@@ -1,11 +1,9 @@
-import os
-from google.cloud import bigquery
 import pandas as pd
 import requests
 from datetime import datetime, timedelta
 
 
-def get_data(url, event):
+def get_df(url, event):
 
     headers = {
         'accept': '*/*',
@@ -46,7 +44,7 @@ def get_data(url, event):
     return df
 
 
-def get_df():
+def get_csv():
     
     url_list = [
         ['https://www.wntlivescores.com/events/hanoi-open-pool-championship-2024/group-matches/1/1/1728197536', 'Hanoi Open Pool Championship 2024'],
@@ -55,22 +53,23 @@ def get_df():
 
     df = []
     for i in url_list:
-        df.extend(get_data(i[0], i[1]))
+        df.extend(get_df(i[0], i[1]))
 
     df = pd.DataFrame(df, columns=['uniqueId', 'modifiedUnixTmp', 'tableName', 'roundNumber', 'length', 'dateStart', 'dateEnd', 'dateScheduled', 'status', 'player1', 'player2', 'country1', 'country2', 'score1', 'score2', 'event'])
 
     df.to_csv('wnt_matches.csv', index=False)
+    #df.to_csv('wnt_matches.csv', mode='a', header=False, index=False)
 
+get_csv()
+# def import_data(dataframe, table_name):
+#     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'mindful-rhythm-344416-fd1a2d1aad0f.json'
 
-def import_data(dataframe, table_name):
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'mindful-rhythm-344416-fd1a2d1aad0f.json'
+#     client = bigquery.Client()
 
-    client = bigquery.Client()
+#     table_id = 'mindful-rhythm-344416.wnt.' + table_name
 
-    table_id = 'mindful-rhythm-344416.wnt.' + table_name
+#     job_config = bigquery.LoadJobConfig(
+#         write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE
+#     )
 
-    job_config = bigquery.LoadJobConfig(
-        write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE
-    )
-
-    job = client.load_table_from_dataframe(dataframe, table_id, job_config=job_config)
+#     job = client.load_table_from_dataframe(dataframe, table_id, job_config=job_config)
